@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { replace } from "expo-router/build/global-state/routing";
+import { Base64 } from "js-base64";
 import React, {
   createContext,
   ReactNode,
@@ -10,6 +12,18 @@ import React, {
 
 const AUTH_TOKEN = "auth__token";
 const USER_DATA = "user__data";
+
+type UserTokenPayload = {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: "male" | "female" | string; // bisa diubah kalau hanya dua opsi
+  image: string;
+  iat: number; // issued at (UNIX timestamp)
+  exp: number; // expiration (UNIX timestamp)
+};
 
 type AuthContextType = {
   user: string | null;
@@ -39,11 +53,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("render auth provider");
     async function checkExistingAuth() {
       try {
-        const token = await AsyncStorage.getItem(AUTH_TOKEN);
-        const userData = await AsyncStorage.getItem(USER_DATA);
+        const token: string | null = await AsyncStorage.getItem(AUTH_TOKEN);
+        const userData: string | null = await AsyncStorage.getItem(USER_DATA);
 
-        if (token && userData) router.replace("/");
-        else router.replace("/signin");
+        if (token && userData) {
+          const payloadToken: string = token.split(".")[1];
+          const payload: UserTokenPayload = JSON.parse(
+            Base64.decode(payloadToken)
+          );
+
+          const now = Math.floor(Date.now() / 1000);
+          console.log({ now, exp: payload.exp, isExpired: now > payload.exp });
+
+          if (now >= payload.exp) {
+            replace("/signin");
+          } else {
+            router.replace("/");
+          }
+        } else {
+          router.replace("/signin");
+        }
       } catch (err: unknown) {
         if (err instanceof Error) {
           console.log(err.message);
@@ -73,10 +102,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, expiresInMins: 1 }),
       });
 
       const data = await response.json();
+      console.log({ data });
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
