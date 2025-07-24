@@ -62,7 +62,7 @@ export default function PostsScreen() {
         </ThemedText>
         <TouchableOpacity
           className="flex-row justify-between"
-          onPress={() => signOut}
+          onPress={signOut}
         >
           <ThemedText>Sign Out</ThemedText>
         </TouchableOpacity>
