@@ -1,5 +1,6 @@
 import { Project } from "@/components/portfolio/ProjectCard";
 import { ThemedText } from "@/components/ThemedText";
+import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import {
@@ -8,6 +9,7 @@ import {
 } from "react-native-safe-area-context";
 
 export default function PortfolioScreen() {
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
 
   const [activeTab, setActiveTab] = useState<string>("Projects"); // Default tab
@@ -98,10 +100,17 @@ export default function PortfolioScreen() {
   ];
 
   return (
-    <SafeAreaView className="px-4">
+    <SafeAreaView
+      className={`flex-1 px-4`}
+      style={{ backgroundColor: theme.background }}
+    >
       {/* Header */}
       <View>
-        <ThemedText className="text-2xl" fontWeight="bold">
+        <ThemedText
+          className="text-2xl"
+          fontWeight="bold"
+          style={{ color: theme.primaryText }}
+        >
           Portfolio
         </ThemedText>
       </View>
@@ -134,10 +143,17 @@ export default function PortfolioScreen() {
               className="bg-slate-50 p-5 w-full mb-3 rounded-2xl border"
             >
               {/* w-full + margin bottom */}
-              <ThemedText fontWeight="bold" className="text-xl text-left">
+              <ThemedText
+                fontWeight="bold"
+                className="text-xl text-left"
+                style={{ color: theme.primaryText }}
+              >
                 {project.title}
               </ThemedText>
-              <ThemedText className="text-left">
+              <ThemedText
+                className="text-left"
+                style={{ color: theme.secondaryText }}
+              >
                 {project.description}
               </ThemedText>
             </View>
