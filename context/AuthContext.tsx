@@ -42,9 +42,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const token = await AsyncStorage.getItem(AUTH_TOKEN);
         const userData = await AsyncStorage.getItem(USER_DATA);
 
-        console.log("token", token);
-        console.log("userData", userData);
-
         if (token && userData) router.replace("/");
         else router.replace("/signin");
       } catch (err: unknown) {
@@ -61,8 +58,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const clearAuthData = async () => {
-    await AsyncStorage.removeItem("auth__token");
-    await AsyncStorage.removeItem("user__data");
+    await AsyncStorage.removeItem(AUTH_TOKEN);
+    await AsyncStorage.removeItem(USER_DATA);
     setUser(null);
   };
 
